@@ -17,13 +17,13 @@ def diff_q(first_file, second_file):
 BRO = os.path.abspath(os.path.join(".", "bro.py"))
 
 INPUTS = [
-    os.path.join("..", "tests", "testdata", "alice29.txt"),
-    os.path.join("..", "tests", "testdata", "asyoulik.txt"),
-    os.path.join("..", "tests", "testdata", "lcet10.txt"),
-    os.path.join("..", "tests", "testdata", "plrabn12.txt"),
-    os.path.join("..", "enc", "encode.cc"),
-    os.path.join("..", "enc", "dictionary.h"),
-    os.path.join("..", "dec", "decode.c"),
+    os.path.join("..", "..", "tests", "testdata", "alice29.txt"),
+    os.path.join("..", "..", "tests", "testdata", "asyoulik.txt"),
+    os.path.join("..", "..", "tests", "testdata", "lcet10.txt"),
+    os.path.join("..", "..", "tests", "testdata", "plrabn12.txt"),
+    os.path.join("..", "..", "enc", "encode.cc"),
+    os.path.join("..", "..", "enc", "dictionary.h"),
+    os.path.join("..", "..", "dec", "decode.c"),
     BRO
 ]
 
