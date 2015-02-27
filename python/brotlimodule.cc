@@ -109,9 +109,35 @@ static PyObject* brotli_decompress(PyObject *self, PyObject *args) {
   return ret;
 }
 
+PyDoc_STRVAR(get_decompressed_size__doc__,
+"get_decompressed_size(string) -- Return decompressed size or None.");
+
+static PyObject* brotli_get_decompressed_size(PyObject *self, PyObject *args) {
+  PyObject *ret = NULL;
+  uint8_t *input;
+  size_t length, output_length = 0;
+  int ok;
+
+  ok = PyArg_ParseTuple(args, "s#:get_decompressed_size",
+                        &input, &length);
+  if (!ok)
+    return NULL;
+
+  ok = BrotliDecompressedSize(length, input, &output_length);
+  if (ok) {
+    ret = Py_BuildValue("n", output_length);
+  } else {
+    PyErr_SetString(BrotliError, "BrotliDecompressedSize failed");
+  }
+
+  return ret;
+}
+
 static PyMethodDef brotli_methods[] = {
   {"compress",   brotli_compress,   METH_VARARGS, compress__doc__},
   {"decompress", brotli_decompress, METH_VARARGS, decompress__doc__},
+  {"get_decompressed_size", brotli_get_decompressed_size, METH_VARARGS,
+   get_decompressed_size__doc__},
   {NULL, NULL, 0, NULL}
 };
 
@@ -120,7 +146,8 @@ PyDoc_STRVAR(brotli__doc__,
 "Brotli library.\n"
 "\n"
 "compress(string[, mode, transform]) -- Compress string.\n"
-"decompress(string) -- Decompresses a compressed string.\n");
+"decompress(string) -- Decompresses a compressed string.\n"
+"get_decompressed_size(string) -- Get decompressed size of given encoded string.\n");
 
 #if PY_MAJOR_VERSION >= 3
 #define INIT_BROTLI   PyInit_brotli
