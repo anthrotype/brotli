@@ -53,9 +53,10 @@ def decompress(data, output_length=None, max_bufsize=MAX_BUFFER_SIZE):
     if output_length:
         return brotli.decompress(data, output_length)
     else:
-        try:
-            output_length = brotli.get_decompressed_size(data)
-        except brotli.error as e:
+        output_length = brotli.get_decompressed_size(data)
+        if output_length:
+            return brotli.decompress(data, output_length)
+        else:
             bufsize = 5*len(data)
             while bufsize < max_bufsize:
                 try:
@@ -63,8 +64,6 @@ def decompress(data, output_length=None, max_bufsize=MAX_BUFFER_SIZE):
                 except brotli.error:
                     bufsize = bufsize*10
             raise brotli.error("maximum buffer size reached")
-        else:
-            return brotli.decompress(data, output_length)
 
 
 def main(args):

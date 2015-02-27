@@ -30,7 +30,7 @@ static int mode_convertor(PyObject *o, BrotliParams::Mode *mode) {
 }
 
 PyDoc_STRVAR(compress__doc__,
-"compress(string[, mode[, transform]]) -- Returned compressed string.\n"
+"compress(string[, mode[, transform]]) -- Return compressed string.\n"
 "\n"
 "Optional arg mode is the compression mode, either MODE_TEXT (default) or\n"
 "MODE_FONT. Optional boolean arg transform controls whether to enable\n"
@@ -127,7 +127,8 @@ static PyObject* brotli_get_decompressed_size(PyObject *self, PyObject *args) {
   if (ok) {
     ret = Py_BuildValue("n", output_length);
   } else {
-    PyErr_SetString(BrotliError, "BrotliDecompressedSize failed");
+    Py_INCREF(Py_None);
+    ret = Py_None;
   }
 
   return ret;
@@ -146,8 +147,8 @@ PyDoc_STRVAR(brotli__doc__,
 "Brotli library.\n"
 "\n"
 "compress(string[, mode, transform]) -- Compress string.\n"
-"decompress(string) -- Decompresses a compressed string.\n"
-"get_decompressed_size(string) -- Get decompressed size of given encoded string.\n");
+"decompress(string[, bufsize]) -- Decompress a compressed string.\n"
+"get_decompressed_size(string) -- Get decompressed size of a compressed string.\n");
 
 #if PY_MAJOR_VERSION >= 3
 #define INIT_BROTLI   PyInit_brotli
