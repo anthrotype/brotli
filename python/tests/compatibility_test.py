@@ -16,41 +16,38 @@ def diff_q(first_file, second_file):
 
 BRO = os.path.abspath(os.path.join(".", "bro.py"))
 
-INPUTS = [
-    os.path.join("..", "..", "tests", "testdata", "empty.compressed"),
-    os.path.join("..", "..", "tests", "testdata", "x.compressed"),
-    os.path.join("..", "..", "tests", "testdata", "64x.compressed"),
-    os.path.join("..", "..", "tests", "testdata", "10x10y.compressed"),
-    os.path.join("..", "..", "tests", "testdata", "xyzzy.compressed"),
-    os.path.join("..", "..", "tests", "testdata", "quickfox.compressed"),
-    os.path.join("..", "..", "tests", "testdata", "ukkonooa.compressed"),
-    os.path.join("..", "..", "tests", "testdata", "monkey.compressed"),
-    os.path.join("..", "..", "tests", "testdata", "backward65536.compressed"),
-    os.path.join("..", "..", "tests", "testdata", "zeros.compressed"),
-    os.path.join("..", "..", "tests", "testdata", "quickfox_repeated.compressed"),
-    os.path.join("..", "..", "tests", "testdata", "compressed_file.compressed"),
-    os.path.join("..", "..", "tests", "testdata", "compressed_repeated.compressed"),
-    os.path.join("..", "..", "tests", "testdata", "alice29.txt.compressed"),
-    os.path.join("..", "..", "tests", "testdata", "asyoulik.txt.compressed"),
-    os.path.join("..", "..", "tests", "testdata", "lcet10.txt.compressed"),
-    os.path.join("..", "..", "tests", "testdata", "plrabn12.txt.compressed"),
-]
+INPUTS = """\
+testdata/empty.compressed
+testdata/x.compressed
+testdata/64x.compressed
+testdata/10x10y.compressed
+testdata/xyzzy.compressed
+testdata/quickfox.compressed
+testdata/ukkonooa.compressed
+testdata/monkey.compressed
+testdata/backward65536.compressed
+testdata/zeros.compressed
+testdata/quickfox_repeated.compressed
+testdata/compressed_file.compressed
+testdata/compressed_repeated.compressed
+testdata/alice29.txt.compressed
+testdata/asyoulik.txt.compressed
+testdata/lcet10.txt.compressed
+testdata/plrabn12.txt.compressed
+"""
 
-for filename in INPUTS:
+os.chdir(os.path.abspath(os.path.join("..", "..", "tests")))
+for filename in INPUTS.splitlines():
     filename = os.path.abspath(filename)
     print('Testing decompression of file "%s"' % os.path.basename(filename))
     uncompressed = os.path.splitext(filename)[0] + ".uncompressed"
     expected = os.path.splitext(filename)[0]
-    with open(expected, "rb") as f:
-        f.seek(0, 2)
-        bufsize = f.tell()
-    call('"%s" -f -d -i "%s" -o "%s" -b %d' %
-         (BRO, filename, uncompressed, bufsize), shell=True)
+    call('"%s" -f -d -i "%s" -o "%s"' % (BRO, filename, uncompressed),
+         shell=True)
     if diff_q(uncompressed, expected) != 0:
         sys.exit(1)
     # Test the streaming version
-    p = Popen('"%s" -d -b %d > "%s"' % (BRO, bufsize, uncompressed),
-              shell=True, stdin=PIPE)
+    p = Popen('"%s" -d > "%s"' % (BRO, uncompressed), shell=True, stdin=PIPE)
     with open(filename, "rb") as infile:
         data = infile.read()
     p.communicate(data)
