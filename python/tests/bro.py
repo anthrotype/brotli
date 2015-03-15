@@ -7,10 +7,9 @@ import sys
 import os
 import brotli
 
-
 __usage__ = """\
 Usage: bro [--force] [--decompress] [--input filename] [--output filename]
-    [--mode 'text'|'font'] [--transform] [--length <int>] [--bufsize <int>]"""
+    [--mode 'text'|'font'] [--transform]"""
 
 __version__ = '0.1'
 
@@ -19,8 +18,6 @@ BROTLI_MODES = {
     'text': brotli.MODE_TEXT,
     'font': brotli.MODE_FONT
 }
-
-MAX_BUFFER_SIZE = 1000000000  # 1 GB
 
 
 def get_binary_stdio(stream):
@@ -42,28 +39,6 @@ def get_binary_stdio(stream):
         else:
             orig_stdio = getattr(sys, "__%s__" % stream)
             return orig_stdio.buffer
-
-
-def decompress(data, output_length=None, max_bufsize=MAX_BUFFER_SIZE):
-    """ Decompress the data. Set decoded buffer size to output_length.
-    If output_length is None, try to calculate it using get_decompressed_size
-    method. If the latter fails, do the decompression in a loop, increasing
-    the buffer size until it reaches the 'max_bufsize' limit.
-    """
-    if output_length:
-        return brotli.decompress(data, output_length)
-    else:
-        output_length = brotli.get_decompressed_size(data)
-        if output_length:
-            return brotli.decompress(data, output_length)
-        else:
-            bufsize = 5*len(data)
-            while bufsize < max_bufsize:
-                try:
-                    return brotli.decompress(data, bufsize)
-                except brotli.error:
-                    bufsize = bufsize*10
-            raise brotli.error("maximum buffer size reached")
 
 
 def main(args):
@@ -93,7 +68,7 @@ def main(args):
 
     try:
         if options.decompress:
-            data = decompress(data, options.length, options.bufsize)
+            data = brotli.decompress(data)
         else:
             data = brotli.compress(data, options.mode, options.transform)
     except brotli.error as e:
@@ -108,9 +83,9 @@ def main(args):
 def parse_options(args):
     try:
         raw_options, dummy = getopt.gnu_getopt(
-            args, "?hdi:o:fm:tl:b:",
+            args, "?hdi:o:fm:t",
             ["help", "decompress", "input=", "output=", "force", "mode=",
-             "transform", "length=", "bufsize="])
+             "transform"])
     except getopt.GetoptError as e:
         print(e, file=sys.stderr)
         usage()
@@ -129,10 +104,6 @@ class Options(object):
         self.decompress = self.force = self.transform = False
         self.infile = self.outfile = None
         self.mode = BROTLI_MODES['text']
-        # decompressed length (in bytes)
-        self.length = None
-        # max buffer size if decompressed length is unknown (default 1GB)
-        self.bufsize = MAX_BUFFER_SIZE
         for option, value in raw_options:
             if option in ("-h", "--help"):
                 print(__doc__ % (__version__))
@@ -154,10 +125,6 @@ class Options(object):
                 self.mode = BROTLI_MODES[value]
             elif option in ('-t', '--transform'):
                 self.transform = True
-            elif option in ('-l', '--length'):
-                self.length = int(value)
-            elif option in ('-b', '--bufsize'):
-                self.bufsize = int(value)
 
 
 if __name__ == '__main__':
