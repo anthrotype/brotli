@@ -34,13 +34,13 @@ for filename in INPUTS.splitlines():
     print('Roundtrip testing of file "%s"' % os.path.basename(filename))
     compressed = os.path.splitext(filename)[0] + ".bro"
     uncompressed = os.path.splitext(filename)[0] + ".unbro"
-    check_call([PYTHON, BRO, "-f", "-i", filename, "-o", compressed])
-    check_call([PYTHON, BRO, "-f", "-d", "-i", compressed, "-o", uncompressed])
+    check_call([PYTHON, "-u", BRO, "-f", "-i", filename, "-o", compressed])
+    check_call([PYTHON, "-u", BRO, "-f", "-d", "-i", compressed, "-o", uncompressed])
     if diff_q(filename, uncompressed) != 0:
         sys.exit(1)
     # Test the streaming version
     with open(filename, "rb") as infile, open(uncompressed, "wb") as outfile:
-        p = Popen([PYTHON, BRO], stdin=infile, stdout=PIPE)
-        check_call([PYTHON, BRO, "-d"], stdin=p.stdout, stdout=outfile)
+        p = Popen([PYTHON, "-u", BRO], stdin=infile, stdout=PIPE)
+        check_call([PYTHON, "-u", BRO, "-d"], stdin=p.stdout, stdout=outfile)
     if diff_q(filename, uncompressed) != 0:
         sys.exit(1)

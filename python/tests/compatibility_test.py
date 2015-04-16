@@ -43,11 +43,11 @@ for filename in INPUTS.splitlines():
     print('Testing decompression of file "%s"' % os.path.basename(filename))
     uncompressed = os.path.splitext(filename)[0] + ".uncompressed"
     expected = os.path.splitext(filename)[0]
-    check_call([PYTHON, BRO, "-f", "-d", "-i", filename, "-o", uncompressed])
+    check_call([PYTHON, "-u", BRO, "-f", "-d", "-i", filename, "-o", uncompressed])
     if diff_q(uncompressed, expected) != 0:
         sys.exit(1)
     # Test the streaming version
     with open(filename, "rb") as infile, open(uncompressed, "wb") as outfile:
-        check_call([PYTHON, BRO, '-d'], stdin=infile, stdout=outfile)
+        check_call([PYTHON, "-u", BRO, '-d'], stdin=infile, stdout=outfile)
     if diff_q(uncompressed, expected) != 0:
         sys.exit(1)
