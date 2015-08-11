@@ -48,7 +48,7 @@ install:
 build: false
 
 test_script:
-  - "%WITH_COMPILER% python setup.py build_ext test"
+  - "%WITH_COMPILER% pip wheel -v -w dist ."
 
 after_test:
   # if tests are successful, create binary packages for the project
