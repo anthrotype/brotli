@@ -39,11 +39,10 @@ install:
   - "python --version"
   - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
 
-build:
-  - "%WITH_COMPILER% python setup.py build_ext"
+build: false
 
 test_script:
-  - "%WITH_COMPILER% python setup.py test"
+  - "%WITH_COMPILER% python setup.py build_ext test"
 
 after_test:
   # if tests are successful, create binary packages for the project
