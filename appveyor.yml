@@ -48,11 +48,11 @@ install:
 build: false
 
 test_script:
-  - "%WITH_COMPILER% pip wheel -v -w dist ."
+  - "%WITH_COMPILER% python setup.py build_ext test"
 
 after_test:
   # if tests are successful, create binary packages for the project
-  - "%WITH_COMPILER% python setup.py bdist_wheel"
+  - "%WITH_COMPILER% pip wheel -v -w dist ."
 
 artifacts:
   # archive the generated packages in the ci.appveyor.com build report
