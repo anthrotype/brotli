@@ -8,6 +8,9 @@ env:
   - INSTALL_TYPE='homebrew' VERSION=2.7.10
   - INSTALL_TYPE='homebrew' VERSION=3.4.3
 install:
+- if [ "$INSTALL_TYPE" == "macpython" ]; then which gcc; gcc --version; fi
+- if [ "$INSTALL_TYPE" == "macpython" ]; then which gcc-4.2; gcc-4.2 --version; fi
+- if [ "$INSTALL_TYPE" == "macpython" ]; then which clang; clang --version; fi
 - source terryfy/travis_tools.sh
 - get_python_environment $INSTALL_TYPE $VERSION venv
 - pip install --upgrade wheel
