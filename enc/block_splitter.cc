@@ -335,24 +335,24 @@ void SplitByteVector(const std::vector<DataType>& data,
   }
   std::vector<HistogramType> histograms;
   // Find good entropy codes.
-  InitialEntropyCodes(&data[0], data.size(),
+  InitialEntropyCodes(data.size() ? &data[0] : NULL, data.size(),
                       literals_per_histogram,
                       max_histograms,
                       sampling_stride_length,
                       &histograms);
-  RefineEntropyCodes(&data[0], data.size(),
+  RefineEntropyCodes(data.size() ? &data[0] : NULL, data.size(),
                      sampling_stride_length,
                      &histograms);
   // Find a good path through literals with the good entropy codes.
   std::vector<uint8_t> block_ids(data.size());
   for (int i = 0; i < 10; ++i) {
-    FindBlocks(&data[0], data.size(),
+    FindBlocks(data.size() ? &data[0] : NULL, data.size(),
                block_switch_cost,
                histograms,
                &block_ids[0]);
-    BuildBlockHistograms(&data[0], data.size(), &block_ids[0], &histograms);
+    BuildBlockHistograms(data.size() ? &data[0] : NULL, data.size(), &block_ids[0], &histograms);
   }
-  ClusterBlocks<HistogramType>(&data[0], data.size(), &block_ids[0]);
+  ClusterBlocks<HistogramType>(data.size() ? &data[0] : NULL, data.size(), &block_ids[0]);
   BuildBlockSplit(block_ids, split);
 }
 
