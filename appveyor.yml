@@ -48,13 +48,13 @@ install:
   # upgrade pip to avoid out-of-date warnings
   - "pip install --disable-pip-version-check --user --upgrade pip"
 
-  # install wheel to build compiled packages
-  - "pip install --upgrade wheel"
+  # install wheel and CFFI to build compiled packages
+  - "pip install --upgrade wheel cffi"
 
 build: false
 
 test_script:
-  - "%WITH_COMPILER% python setup.py build_ext test"
+  - "%WITH_COMPILER% python setup.py build test"
 
 after_test:
   # if tests are successful, create binary packages for the project
@@ -62,7 +62,7 @@ after_test:
 
 artifacts:
   # archive the generated packages in the ci.appveyor.com build report
-  - path: dist\*
+  - path: dist\Brotli*.whl
 
 # For info, see: http://www.appveyor.com/docs/deployment/github
 
