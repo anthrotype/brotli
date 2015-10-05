@@ -1,17 +1,24 @@
-try:
-    import setuptools
-except:
-    pass
-import distutils
-from distutils.core import setup, Extension
-from distutils.command.build_ext import build_ext
-from distutils.cmd import Command
+import os
+from setuptools import setup, find_packages, Command
+from setuptools.command.build_ext import build_ext 
 import platform
+import sys
 import os
 import re
 
 
 CURR_DIR = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
+
+
+requirements = []
+if platform.python_implementation() == "PyPy":
+    if sys.pypy_version_info < (2, 6):
+        raise RuntimeError(
+            "Brotli is not compatible with PyPy < 2.6. Please "
+            "upgrade PyPy to use this library."
+        )
+else:
+    requirements.append("cffi>=1.1.0")
 
 
 def get_version():
@@ -39,7 +46,7 @@ class TestCommand(Command):
         pass
 
     def run(self):
-        import sys, subprocess, glob
+        import subprocess, glob
 
         test_dir = os.path.join(CURR_DIR, 'python', 'tests')
         os.chdir(test_dir)
@@ -122,69 +129,6 @@ class BuildExt(build_ext):
             build_temp=self.build_temp,
             target_lang=language)
 
-brotli = Extension("brotli",
-                    sources=[
-                        "python/brotlimodule.cc",
-                        "enc/backward_references.cc",
-                        "enc/block_splitter.cc",
-                        "enc/brotli_bit_stream.cc",
-                        "enc/encode.cc",
-                        "enc/entropy_encode.cc",
-                        "enc/histogram.cc",
-                        "enc/literal_cost.cc",
-                        "enc/metablock.cc",
-                        "enc/static_dict.cc",
-                        "enc/streams.cc",
-                        "enc/utf8_util.cc",
-                        "dec/bit_reader.c",
-                        "dec/decode.c",
-                        "dec/dictionary.c",
-                        "dec/huffman.c",
-                        "dec/streams.c",
-                        "dec/state.c",
-                    ],
-                    depends=[
-                        "enc/backward_references.h",
-                        "enc/bit_cost.h",
-                        "enc/block_splitter.h",
-                        "enc/brotli_bit_stream.h",
-                        "enc/cluster.h",
-                        "enc/command.h",
-                        "enc/context.h",
-                        "enc/dictionary.h",
-                        "enc/dictionary_hash.h",
-                        "enc/encode.h",
-                        "enc/entropy_encode.h",
-                        "enc/fast_log.h",
-                        "enc/find_match_length.h",
-                        "enc/hash.h",
-                        "enc/histogram.h",
-                        "enc/literal_cost.h",
-                        "enc/metablock.h",
-                        "enc/port.h",
-                        "enc/prefix.h",
-                        "enc/ringbuffer.h",
-                        "enc/static_dict.h",
-                        "enc/static_dict_lut.h",
-                        "enc/streams.h",
-                        "enc/transform.h",
-                        "enc/types.h",
-                        "enc/utf8_util.h",
-                        "enc/write_bits.h",
-                        "dec/bit_reader.h",
-                        "dec/context.h",
-                        "dec/decode.h",
-                        "dec/dictionary.h",
-                        "dec/huffman.h",
-                        "dec/prefix.h",
-                        "dec/port.h",
-                        "dec/streams.h",
-                        "dec/transform.h",
-                        "dec/types.h",
-                        "dec/state.h",
-                    ],
-                    language="c++",
-                    )
 
 setup(
     name="Brotli",
@@ -219,9 +163,19 @@ setup(
         'Topic :: Text Processing :: Fonts',
         'Topic :: Utilities',
         ],
-    ext_modules=[brotli],
+    package_dir={"": "python/lib"},
+    packages=['brotli'],
+    ext_package='brotli',
+    tests_require=requirements,
+    setup_requires=requirements,
+    install_requires=requirements,
+    cffi_modules=["python/build_brotli.py:ffi"],
+    zip_safe=False,
     cmdclass={
         'build_ext': BuildExt,
         'test': TestCommand
+        },
+    entry_points={
+        'console_scripts': ["bro = brotli.bro:main"]
         },
 )
