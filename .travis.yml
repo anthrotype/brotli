@@ -12,13 +12,13 @@ env:
 install:
 - source terryfy/travis_tools.sh
 - get_python_environment $INSTALL_TYPE $VERSION venv
-- pip install --upgrade wheel
+- pip install --upgrade wheel cffi
 script:
-- python setup.py build_ext test
+- python setup.py build test
 after_success:
 - pip wheel -w dist .
 before_deploy:
-- export WHEELS=$(ls ./dist/*.whl)
+- export WHEELS=$(ls ./dist/Brotli*.whl)
 
 deploy:
   provider: releases
