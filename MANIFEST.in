@@ -1,0 +1,9 @@
+include README.md
+include LICENSE
+include CONTRIBUTING
+include tools/version.h
+
+recursive-include python *.py
+recursive-exclude python/tests *.py
+recursive-include enc *.cc *.h
+recursive-include dec *.c *.h
