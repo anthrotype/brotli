@@ -62,7 +62,7 @@ test_script:
 
 after_test:
   # if tests are successful, create binary packages for the project
-  - "%WITH_COMPILER% pip wheel -w dist ."
+  - "%WITH_COMPILER% python setup.py bdist_wheel"
 
 artifacts:
   # archive the generated packages in the ci.appveyor.com build report
