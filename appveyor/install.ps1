@@ -4,6 +4,7 @@
 # Source: https://github.com/ogrisel/python-appveyor-demo/blob/master/appveyor/install.ps1
 
 $BASE_URL = "https://www.python.org/ftp/python/"
+$PYPY_URL = "https://bitbucket.org/pypy/pypy/downloads"
 $GET_PIP_URL = "https://bootstrap.pypa.io/get-pip.py"
 $GET_PIP_PATH = "C:\get-pip.py"
 
@@ -155,7 +156,12 @@ function RunCommand ($command, $command_args) {
 
 
 function InstallPip ($python_home) {
-    $pip_path = $python_home + "\Scripts\pip.exe"
+    $is_pypy = $python_home -like '*pypy*'
+    if ($is_pypy) {
+        $pip_path = $python_home + "\bin\pip.exe"
+    } else {
+        $pip_path = $python_home + "\Scripts\pip.exe"
+    }
     $python_path = $python_home + "\python.exe"
     if (-not(Test-Path $pip_path)) {
         Write-Host "Installing pip..."
@@ -169,8 +175,48 @@ function InstallPip ($python_home) {
 }
 
 
+function InstallPyPy ($python_home) {
+    Write-Host "Installing" $python_home
+    if (-not(Test-Path $python_home)) {
+        $pypy_version = $python_home.TrimStart('C:\').ToLower()
+        $filepath = DownloadPyPy $pypy_version
+        & 7z -oC:\ x $filepath | Out-Null
+        Write-Host "Add $python_home and $python_home\bin to the %PATH%"
+        $env:path = "$python_home;$python_home\bin;$env:path"
+        fsutil hardlink create "$python_home\python.exe" "$python_home\pypy.exe"
+        fsutil hardlink create "$python_home\pythonw.exe" "$python_home\pypyw.exe"
+        Write-Host "$pypy_version installation complete"
+        return $true
+    }
+        Write-Host $python_home "already exists, skipping."
+        return $false
+}
+
+
+function DownloadPyPy ($pypy_version) {
+    $webclient = New-Object System.Net.WebClient
+    $filename = $pypy_version + ".zip"
+    $url = $PYPY_URL + "/" + $filename
+
+    $basedir = $pwd.Path + "\"
+    $filepath = $basedir + $filename
+    if (Test-Path $filename) {
+        Write-Host "Reusing" $filepath
+        return $filepath
+    }
+
+    $filepath = Download $filename $url
+    return $filepath
+}
+
+
 function main () {
-    InstallPython $env:PYTHON_VERSION $env:PYTHON_ARCH $env:PYTHON
+    $is_pypy = $env:PYTHON.ToLower() -like '*pypy*'
+    if ($is_pypy) {
+        InstallPyPy $env:PYTHON
+    } else {
+        InstallPython $env:PYTHON_VERSION $env:PYTHON_ARCH $env:PYTHON
+    }
     InstallPip $env:PYTHON
 }
 
