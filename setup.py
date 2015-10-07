@@ -11,6 +11,28 @@ import os
 import re
 
 
+try:
+    # Workaround for a bug in wheel package which prevents from building wheels
+    # on Windows PyPy.
+    # A empty metadata file ('dependency_links.txt') cannot be deleted because
+    # it is left open. It's better to just leave it there until they fix it...
+    # See: https://bitbucket.org/pypa/wheel/issues/150/error-32-when-deleting-empty
+    from wheel.bdist_wheel import bdist_wheel
+
+    _egg2dist = bdist_wheel.egg2dist
+    def egg2dist(self, *args, **kwargs):
+        try:
+            _egg2dist(self, *args, **kwargs)
+        except WindowsError as e:
+            if e.winerror == 32:
+                pass
+            else:
+                raise
+    bdist_wheel.egg2dist = egg2dist
+except ImportError:
+    pass
+
+
 CURR_DIR = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 
 
