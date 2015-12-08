@@ -7,8 +7,9 @@ from ._brotli_cffi import ffi, lib
 __version__ = ffi.string(lib.__version__)
 
 MODE_GENERIC = lib.MODE_GENERIC
-MODE_TEXT    = lib.MODE_TEXT
-MODE_FONT    = lib.MODE_FONT
+MODE_TEXT = lib.MODE_TEXT
+MODE_FONT = lib.MODE_FONT
+
 
 class error(Exception):
     pass
@@ -28,7 +29,7 @@ Signature:
 Args:
   string (bytes): The input data.
   mode (int, optional): The compression mode can be MODE_GENERIC (default),
-    MODE_TEXT (for UTF-8 format text input) or MODE_FONT (for WOFF 2.0). 
+    MODE_TEXT (for UTF-8 format text input) or MODE_FONT (for WOFF 2.0).
   quality (int, optional): Controls the compression-speed vs compression-
     density tradeoff. The higher the quality, the slower the compression.
     Range is 0 to 11. Defaults to 11.
@@ -54,7 +55,7 @@ Raises:
         raise error("Invalid lgblock. Can be 0 or in range 16 to 24.")
 
     length = len(string)
-    output_length = int(1.2 * length + 10240);
+    output_length = int(1.2 * length + 10240)
     output = ffi.new("uint8_t[]", output_length)
     p_output_length = ffi.new("size_t[1]", [output_length])
     ok = lib.do_compress(mode, quality, lgwin, lgblock,
